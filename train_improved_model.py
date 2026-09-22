@@ -31,46 +31,18 @@ def main():
         print(f'[{i}/{len(classes)}] {folder.name}: {used}')
     X=np.asarray(X,dtype=np.float32); y=np.asarray(y)
     if len(set(y))<2: raise SystemExit('Need at least 2 classes.')
-
-    Xtr,Xte,ytr,yte=train_test_split(
-        X,
-        y,
-        test_size=.20,
-        random_state=42,
-        stratify=y
-    )
-
+    Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.20,random_state=42,stratify=y)
     models={
-      'KNN': Pipeline([
-          ('scale',StandardScaler()),
-          ('model',KNeighborsClassifier(
-              n_neighbors=3,
-              weights='distance',
-              p=2
-          ))
-      ]),
-      'Logistic Regression': Pipeline([
-          ('scale',StandardScaler()),
-          ('model',LogisticRegression(
-              max_iter=2500,
-              C=2.0,
-              solver='lbfgs'
-          ))
-      ])
+      'KNN': Pipeline([('scale',StandardScaler()),('model',KNeighborsClassifier(n_neighbors=3,weights='distance',p=2))]),
+      'Logistic Regression': Pipeline([('scale',StandardScaler()),('model',LogisticRegression(max_iter=2500,C=2.0,solver='lbfgs'))])
     }
-
-    best_name=None
-    best=None
-    best_acc=-1
-
+    best_name=None; best=None; best_acc=-1
     for name,m in models.items():
-        print(f'Training {name}...')
-        m.fit(Xtr,ytr)
-        acc=accuracy_score(yte,m.predict(Xte))
-        print(f'{name} accuracy: {acc:.4f}')
+        print(f'Training {name}...'); m.fit(Xtr,ytr); acc=accuracy_score(yte,m.predict(Xte)); print(f'{name} accuracy: {acc:.4f}')
+        if acc>best_acc: best_name,best,best_acc=name,m,acc
+    Path('models').mkdir(exist_ok=True)
+    joblib.dump({'model':best,'model_name':best_name,'accuracy':best_acc,'feature_version':'v2'},'models/best_model.joblib')
+    print(f'BEST: {best_name} | accuracy={best_acc:.4f}')
+    print('Saved: models/best_model.joblib')
 
-        if acc>best_acc:
-            best_name,best,best_acc=name,m,acc
-
-if __name__=='__main__':
-    main()
+if __name__=='__main__': main()
