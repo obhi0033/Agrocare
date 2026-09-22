@@ -40,4 +40,37 @@ def main():
         stratify=y
     )
 
-if __name__=='__main__': main()
+    models={
+      'KNN': Pipeline([
+          ('scale',StandardScaler()),
+          ('model',KNeighborsClassifier(
+              n_neighbors=3,
+              weights='distance',
+              p=2
+          ))
+      ]),
+      'Logistic Regression': Pipeline([
+          ('scale',StandardScaler()),
+          ('model',LogisticRegression(
+              max_iter=2500,
+              C=2.0,
+              solver='lbfgs'
+          ))
+      ])
+    }
+
+    best_name=None
+    best=None
+    best_acc=-1
+
+    for name,m in models.items():
+        print(f'Training {name}...')
+        m.fit(Xtr,ytr)
+        acc=accuracy_score(yte,m.predict(Xte))
+        print(f'{name} accuracy: {acc:.4f}')
+
+        if acc>best_acc:
+            best_name,best,best_acc=name,m,acc
+
+if __name__=='__main__':
+    main()
