@@ -32,4 +32,12 @@ def main():
     X=np.asarray(X,dtype=np.float32); y=np.asarray(y)
     if len(set(y))<2: raise SystemExit('Need at least 2 classes.')
 
+    Xtr,Xte,ytr,yte=train_test_split(
+        X,
+        y,
+        test_size=.20,
+        random_state=42,
+        stratify=y
+    )
+
 if __name__=='__main__': main()
